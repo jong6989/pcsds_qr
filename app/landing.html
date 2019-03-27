@@ -1,0 +1,16 @@
+<md-content layout="row" layout-align="center center" ng-style="{height:iframeHeight}">
+    <div flex="60" class="m-t--40">
+        <h3 class="col-red align-center"> {{system_message}} </h3>
+        <div ng-show="is_geo_sent && is_data_valid" layout="row" layout-align="center center">
+            <md-button class="md-raised md-primary" ng-click="view_qr()">
+                <md-tooltip md-direction="bottom">Click to View Data</md-tooltip>
+                I want to view this QR code's DATA.
+            </md-button>
+            <md-button class="md-raised md-warn">
+                <md-tooltip md-direction="bottom">For PCSD Staff Only</md-tooltip>
+                other
+            </md-button>
+        </div>
+        <img ng-hide="is_geo_sent" src="images/brain_logo2.png" width="70%" style="margin-left: 15%;" alt="PCSDS BRAIN SYSTEMS">
+    </div>
+</md-content>
