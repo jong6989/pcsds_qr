@@ -22,9 +22,11 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
     $scope.html_title = "PCSDS QR Viewer";
     $scope.coordinates = {};
     $scope.system_message = "Some Error Occur.. Please Try Again";
-    $scope.is_geo_sent = false;
+    // $scope.is_geo_sent = false;
     $scope.is_data_valid = true;
     $scope.template = '';
+    $scope.user_id = 0;
+    $scope.is_loading = false;
     $scope.valid_types = [{type:'ltp',template:'app/permits/ltp.html'}];
 
     
@@ -139,16 +141,16 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
       $utils.api(q);
     };
 
-    $scope.get_single_transaction = (trans_id)=>{
-      $http.get(api_address + "?action=applicant/transaction/qr&id=" + trans_id ).then(function(data){
-        if(data.data.status==1 && data.data.data != 0){
-          $scope.application = data.data.data;
-        }else {
-          $scope.system_message = "Invalid QR Code!";
-          $scope.is_data_valid = false;
-        }
-      });
-    }
+    // $scope.get_single_transaction = (trans_id)=>{
+    //   $http.get(api_address + "?action=applicant/transaction/qr&id=" + trans_id ).then(function(data){
+    //     if(data.data.status==1 && data.data.data != 0){
+    //       $scope.application = data.data.data;
+    //     }else {
+    //       $scope.system_message = "Invalid QR Code!";
+    //       $scope.is_data_valid = false;
+    //     }
+    //   });
+    // }
 
     $scope.check_qr_code = ()=>{
       $scope.system_message = "Invalid QR Code!";
@@ -167,43 +169,88 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
       $scope.current_view = $scope.template;
     }
 
+    $scope.enfocer_login = function(id,pass){
+      var q = { 
+          data : {
+              action : "applicant/transaction/enforcer_qr",
+              user_id : id,
+              password : pass,
+              transaction_id : $location.search().id
+          },
+          callBack : function(data){
+              if(data.data.status == 0){
+                $scope.system_message = data.data.error;
+              }else {
+                $scope.user_id = id;
+                $scope.application = data.data.data;
+                $scope.view_qr();
+              }
+          }
+      };
+      $utils.api(q);
+    };
+
+    $scope.mark_permit_as_used = function(r){
+      $scope.is_loading = true;
+      var q = { 
+          data : {
+              action : "applicant/transaction/used",
+              user_id : $scope.user_id,
+              remark : r,
+              id : $location.search().id
+          },
+          callBack : function(data){
+              $scope.is_loading = false;
+              if(data.data.status == 1){
+                $scope.application = data.data.data;
+              }else {
+                $scope.toast(data.data.error);
+              }
+          }
+      };
+      $utils.api(q);
+    };
+
     //get geolocation
     $scope.get_geolocation = ()=>{
       if(!$scope.check_qr_code())
         return null;
-      $scope.system_message = "We need to know your location...";
+      $scope.system_message = "Getting your location...";
 
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position)=>{
-            $scope.coordinates = position.coords;
-            $scope.save_geolocation(position.coords);
-            $scope.is_geo_sent = true;
-            $scope.get_single_transaction($location.search().id);
-            $scope.system_message = "What do you need to know?";
-          },
-          (error)=>{
-            switch(error.code) {
-              case 1:
-                $scope.system_message = "You denied allowing us to know your location. Process terminated."
-                break;
-              case 2:
-                $scope.system_message = "We Could not locate you. Process terminated"
-                break;
-              case 3:
-                $scope.system_message = "Too long to respond. Process terminated."
-                break;
+      // $scope.get_single_transaction($location.search().id);
+      $scope.system_message = "PCSD Enforcer Log-In";
 
-              default :
-                $scope.system_message = "An unknown error occurred. Please try again."
-                break;
-            }
-            $scope.$apply();
-          }
-        );
-      } else { 
-        $scope.system_message = "Geolocation is not supported by this browser.";
-      }
+      // if (navigator.geolocation) {
+      //   navigator.geolocation.getCurrentPosition(
+      //     (position)=>{
+      //       $scope.coordinates = position.coords;
+      //       // $scope.save_geolocation(position.coords);
+      //       // $scope.is_geo_sent = true;
+      //       $scope.get_single_transaction($location.search().id);
+      //       $scope.system_message = "PCSD Enforcer Log-In";
+      //     },
+      //     (error)=>{
+      //       switch(error.code) {
+      //         case 1:
+      //           $scope.system_message = "Location denied. Process terminated."
+      //           break;
+      //         case 2:
+      //           $scope.system_message = "We Could not locate you. Process terminated"
+      //           break;
+      //         case 3:
+      //           $scope.system_message = "Too long to respond. Process terminated."
+      //           break;
+
+      //         default :
+      //           $scope.system_message = "An unknown error occurred. Please try again."
+      //           break;
+      //       }
+      //       $scope.$apply();
+      //     }
+      //   );
+      // } else { 
+      //   $scope.system_message = "Geolocation is not supported by this browser.";
+      // }
     };
 
 

@@ -1,16 +1,20 @@
 <md-content layout="row" layout-align="center center" ng-style="{height:iframeHeight}">
     <div flex="60" class="m-t--40">
-        <h3 class="col-red align-center"> {{system_message}} </h3>
-        <div ng-show="is_geo_sent && is_data_valid" layout="row" layout-align="center center">
-            <md-button class="md-raised md-primary" ng-click="view_qr()">
-                <md-tooltip md-direction="bottom">Click to View Data</md-tooltip>
-                I want to view this QR code's DATA.
-            </md-button>
-            <md-button class="md-raised md-warn">
-                <md-tooltip md-direction="bottom">For PCSD Staff Only</md-tooltip>
-                other
-            </md-button>
+        <img  src="images/brain_logo2.png" width="50%" style="margin-left: 25%;" alt="PCSDS BRAIN SYSTEMS">
+        <h4 class="col-red align-center font-18 m-t-20 m-b-10"> {{system_message}} </h4>
+        <md-divider class="m-b-20"></md-divider>
+        <div ng-show="is_data_valid" layout="row" layout-align="center center">
+            <form name="enforcer_log_form">
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Enforcer ID</label>
+                    <input ng-model="enforcer_id" required>
+                </md-input-container>
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Password</label>
+                    <input ng-model="enforcer_password" type="password" required>
+                </md-input-container>
+                <md-button ng-disabled="enforcer_log_form.$invalid" type="submit" ng-click="enfocer_login(enforcer_id,enforcer_password)" class="md-raised md-primary">Open</md-button>
+            </form>
         </div>
-        <img ng-hide="is_geo_sent" src="images/brain_logo2.png" width="70%" style="margin-left: 15%;" alt="PCSDS BRAIN SYSTEMS">
     </div>
 </md-content>
