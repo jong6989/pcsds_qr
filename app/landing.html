@@ -4,7 +4,13 @@
         <h4 class="col-red align-center font-18 m-t-20 m-b-10"> {{system_message}} </h4>
         <md-divider class="m-b-20"></md-divider>
         <div ng-show="is_data_valid" layout="row" layout-align="center center">
-            <form name="enforcer_log_form">
+            <div ng-if="is_loading">
+                <div layout="row" layout-sm="column" layout-align="space-around">
+                    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                </div>
+                <cite>Signing in...</cite>
+            </div>
+            <form name="enforcer_log_form" ng-if="!is_loading">
                 <md-input-container class="md-block" flex-gt-sm>
                     <label>Enforcer ID</label>
                     <input ng-model="enforcer_id" required>

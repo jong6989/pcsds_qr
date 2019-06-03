@@ -1,0 +1,82 @@
+<div layout="column" style="height: {{get_window_height()}}px">
+    <md-toolbar md-scroll-shrink="" class="bg-teal">
+        <div class="md-toolbar-tools" layout="row">
+            <h2 flex>PCSD Online Permit</h2>
+            <md-button ng-click="open_action($event)" class="md-icon-button">
+                <i class="fa fa-cog"></i>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-content flex layout-align="center center" layout-padding>
+        <h4 class="col-red align-center font-18 m-t-20 m-b-10" ng-if="system_message != '';"> {{system_message}} </h4>
+        <div ng-include="template"></div>
+    </md-content>
+
+<div style="visibility: hidden">
+    <div class="md-dialog-container" id="actionModal">
+        <md-dialog aria-label="Action Modal">
+            <!-- toolbar -->
+            <md-toolbar class="bg-teal">
+                <div class="md-toolbar-tools">
+                    <h2>{{ (staff == undefined)? 'Login': staff.data.first_name }}</h2>
+                    <span flex></span>
+                    <md-button class="md-icon-button" ng-click="close_dialog()">
+                        <i class="fa fa-close"></i>
+                    </md-button>
+                </div>
+            </md-toolbar>
+        
+            <md-dialog-content layout-padding>
+                <!-- loading -->
+                <div layout="row" ng-show="is_loading" layout-sm="column" layout-align="space-around">
+                    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                </div>
+                <!-- login form -->
+                <div ng-if="staff == undefined" layout="row" layout-align="center center">
+                    <md-card ng-hide="is_loading">
+                        <md-card-content>
+                            <form name="staff_log_form">
+                                <md-input-container class="md-block" flex-gt-sm>
+                                    <label>Staff ID</label>
+                                    <input ng-model="staff_id" required>
+                                </md-input-container>
+                                <md-input-container class="md-block" flex-gt-sm>
+                                    <label>Password</label>
+                                    <input ng-model="staff_password" type="password" required>
+                                </md-input-container>
+                                <md-button ng-disabled="staff_log_form.$invalid" type="submit" ng-click="staff_login(staff_id,staff_password)" class="md-raised md-primary">Sign-in</md-button>
+                            </form>
+                        </md-card-content>
+                    </md-card>
+                </div>
+                <!-- if Logged -->
+                <div ng-if="staff !== undefined">
+                    Transaction No. <strong>{{application.date}}</strong>
+                    <hr>
+                    Status : <strong>{{getStatusCode(application.status)}}</strong>
+                    <hr>
+                    <div ng-if="application.status == 6">
+                        <div>
+                            Approved by : <strong>{{ application.data.acknowledged.staff }} </strong>
+                            <hr>
+                            Approved date : <strong>{{application.data.acknowledged.date}}</strong>
+                            <hr>
+                            Expiration date : <strong>{{application.expiration}}</strong>
+                            <hr>
+                            <div layout="row" layout-align="center center">
+                                <md-button ng-click="mark_as_used($event)" class="md-raised md-warn">
+                                    <i class="fa fa-mark-square-o"></i>
+                                    Mark as Used
+                                </md-button>
+                            </div>
+                            <hr>
+                        </div>
+                    </div>
+                    <md-button ng-click="sign_out()" class="md-button">Sign-out</md-button>
+                </div>
+
+            </md-dialog-content>
+        
+        </md-dialog>
+    </div>
+</div>

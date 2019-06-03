@@ -18,7 +18,7 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
 
 .controller('AppCtrl', function ($scope,$window,$filter, $http,$timeout, $interval, $mdSidenav, $log, $utils, $mdToast,$localStorage , $sessionStorage, $mdDialog,$route, $routeParams, $location) {
     $scope.api_address = api_address;
-    $scope.current_view = 'app/landing.html';
+    $scope.current_view = 'app/qr.html';
     $scope.html_title = "PCSDS QR Viewer";
     $scope.coordinates = {};
     $scope.system_message = "Some Error Occur.. Please Try Again";
@@ -27,9 +27,32 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
     $scope.template = '';
     $scope.user_id = 0;
     $scope.is_loading = false;
-    $scope.valid_types = [{type:'ltp',template:'app/permits/ltp.html'}];
+    $scope.staff = $localStorage.pcsd_staff;
 
+    $scope.valid_types = [
+      { type : "ltp_rff" , template:'app/permits/ltp_rff.html' },
+      { type : "wsup_rff" , template:'app/permits/wsup_rff.html' },
+      { type : "wsup_ao12" , template:'app/permits/wsup_ao12.html'  },
+      { type : "wcp" , template:'app/permits/wcp.html'  },
+      { type : "wfp" , template:'app/permits/wfp.html'  },
+      { type : "cr" , template:'app/permits/cr.html'  },
+      { type : "ptp" , template:'app/permits/ptp.html'  }
+    ];
+
+    $scope.close_dialog = ()=> {
+      $mdDialog.cancel();
+    };
     
+    $scope.open_action = (ev)=>{
+      $mdDialog.show({
+        contentElement: '#actionModal',
+        parent: angular.element(document.body),
+        targetEvent: ev,
+        fullscreen: true,
+        clickOutsideToClose: false
+      });
+    };
+
     $scope.to_date = function(d){
       return $filter('date')(d, "yyyy-MM-dd");
     };
@@ -84,7 +107,7 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
     };
 
     $scope.date_now = function(){
-      return moment().format("YYYY-MM-DD");
+      return moment().format("YYYY-MM-DD HH:mm:ss");
     };
 
     $scope.toast = function(t){
@@ -112,12 +135,13 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
 
     $scope.getStatusCode = function(n){
       if(n==0)return "Submitted";
-      if(n==1)return "Received, Reviewing";
+      if(n==1)return "Received and under processing";
       if(n==2)return "Rejected";
-      if(n==3)return "Accepted, On Process";
-      if(n==4)return "Approved, On Process";
-      if(n==5)return "Recomended, On Process";
-      if(n==6)return "Acknowledged, Ready to Use";
+      if(n==3)return "Processed and under review";
+      if(n==4)return "Reviewed and for recommendation";
+      if(n==5)return "Recomended and for approval";
+      if(n==6)return "Approved, for release";
+      if(n==7)return "Used";
     };
 
     $scope.alert = (title,text,event)=>{
@@ -152,12 +176,28 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
     //   });
     // }
 
+    function notify_applicant(applicant_id,application_id,message){
+      let notif = {
+          "type" : "applicant",
+          "user" : applicant_id,
+          "transaction_id" : application_id,
+          "message" : message,
+          "status" : "0",
+          "date" : Date.now()
+      };
+      fire.db.notifications.query.add(notif);
+    }
+
     $scope.check_qr_code = ()=>{
       $scope.system_message = "Invalid QR Code!";
       if($location.search().type == undefined){return false;} 
       let return_val = false;
       $scope.valid_types.forEach(element => {
         if($location.search().type == element.type){
+          fire.db.transactions.when($location.search().id, (res) => {
+            $scope.application = res;
+            $scope.$apply();
+          });
           $scope.template = element.template;
           return_val = true;
         }
@@ -190,6 +230,75 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
       $utils.api(q);
     };
 
+    $scope.mark_as_used = function(ev) {
+      var confirm = $mdDialog.confirm()
+          .title(`Mark this transaction number ${$scope.application.date} as used?`)
+          .textContent('Please confirm your action')
+          .ariaLabel('Mark as used')
+          .targetEvent(ev)
+          .ok('Mark as used')
+          .cancel('Close');
+
+      $mdDialog.show(confirm).then(function() {
+        fire.db.transactions.update($scope.application.id,{
+          "status":"7",
+          "data.used" : {
+              "staff" : $scope.staff.data.first_name + ' ' + $scope.staff.data.last_name,
+              "date" : $scope.date_now(),
+              "staff_id" : $scope.staff.id
+          }
+        });
+        notify_applicant($scope.application.user.id,$scope.application.id,
+            "Your permit where marked as used. Staff : " 
+            + $scope.staff.data.first_name + ' ' 
+            + $scope.staff.data.last_name);
+
+        let act = `You mark as used transaction number ${$scope.application.date} of ${$scope.application.data.application.applicant} on ${$scope.to_date($scope.application.date)}.`;
+        $scope.toast(act);
+        fire.db.staffs.query.doc($scope.staff.id).collection("logs").add({name:"action",message:act,date:Date.now()});
+      }, function() {
+        console.log('closed');
+      });
+    };
+
+    $scope.sign_out = () => {
+      $localStorage.pcsd_staff = undefined;
+      $scope.staff = undefined;
+    };
+
+    $scope.staff_login = function(id,pass){
+      $scope.is_loading = true;
+      var q = { 
+        data : { 
+          action : "user/login",
+          id_number : id,
+          key : pass
+        },
+        callBack : function(data){
+          $scope.is_loading = false;
+          if(data.data.status == 0){
+            $scope.toast(data.data.error + "  : " + data.data.hint);
+          }else {
+            $localStorage.pcsd_staff = data.data.data.user;
+            $scope.staff = data.data.data.user;
+            fire.db.staffs.get(data.data.data.user.id, (res)=> {
+              if(res == undefined) {
+                fire.db.staffs.set(data.data.data.user.id, data.data.data.user);
+              }
+              $scope.staff = res;
+              $scope.$apply();
+            });
+          }
+        },
+        errorCallBack : function(err){
+          $scope.is_loading = false;
+          console.log(err);
+          $scope.toast("Connection error...");
+        }
+      };
+      $utils.api(q);
+    };
+
     $scope.mark_permit_as_used = function(r){
       $scope.is_loading = true;
       var q = { 
@@ -218,7 +327,7 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
       $scope.system_message = "Getting your location...";
 
       // $scope.get_single_transaction($location.search().id);
-      $scope.system_message = "PCSD Enforcer Log-In";
+      $scope.system_message = "";
 
       // if (navigator.geolocation) {
       //   navigator.geolocation.getCurrentPosition(
