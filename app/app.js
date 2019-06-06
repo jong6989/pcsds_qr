@@ -31,6 +31,7 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
 
     $scope.valid_types = [
       { type : "ltp_rff" , template:'app/permits/ltp_rff.html' },
+      { type : "ltp_ao12" , template:'app/permits/ltp_ao12.html' },
       { type : "wsup_rff" , template:'app/permits/wsup_rff.html' },
       { type : "wsup_ao12" , template:'app/permits/wsup_ao12.html'  },
       { type : "wcp" , template:'app/permits/wcp.html'  },

@@ -118,58 +118,70 @@
 
     </div>
 
-
+    <hr>
+    
     <!-- Received Stamp -->
     <div ng-if="application.status > 0" >
-        <hr class="p-t-10">
-        Received by : <strong>{{ application.data.received.staff }}</strong> 
-        , on <strong>{{application.data.received.date.split(' ')[0]}}</strong>
+        <md-card>
+            <md-card-content>
+                Received by : <strong>{{ application.data.received.staff }}</strong> 
+                , on <strong>{{application.data.received.date}}</strong>
+            </md-card-content>
+        </md-card>
     </div>
 
     <!-- Rejected Stamp -->
     <div ng-if="application.data.rejected != undefined " >
-        <hr class="p-t-10">
-        Rejected by : <strong>{{ application.data.rejected.staff }} </strong> 
-        Reason : <strong>{{ application.data.rejected.message }} </strong> 
-        , on <strong>{{application.data.rejected.date.split(' ')[0]}}</strong>
+        <md-card>
+            <md-card-content>
+                Rejected by : <strong>{{ application.data.rejected.staff }} </strong> 
+                Reason : <strong>{{ application.data.rejected.message }} </strong> 
+                , on <strong>{{application.data.rejected.date}}</strong>
+            </md-card-content>
+        </md-card>
     </div>
 
     <!-- Accepted Stamp -->
     <div ng-if="application.data.accepted != undefined " >
-        <hr class="p-t-10">
-        Processed by : <strong>{{ application.data.accepted.staff }} </strong> 
-        , on  <strong>{{application.data.accepted.date.split(' ')[0]}}</strong>
+        <md-card>
+            <md-card-content>
+                Processed by : <strong>{{ application.data.accepted.staff }} </strong> 
+                , on  <strong>{{application.data.accepted.date}}</strong>
+            </md-card-content>
+        </md-card>
     </div>
 
     <!-- Approved Stamp -->
     <div ng-if="application.data.approved != undefined " >
-        <hr class="p-t-10">
-        Reviewed by : <strong>{{ application.data.approved.staff }} </strong> 
-        , on  <strong>{{application.data.approved.date.split(' ')[0]}}</strong>
+        <md-card>
+            <md-card-content>
+                Reviewed by : <strong>{{ application.data.approved.staff }} </strong> 
+                , on  <strong>{{application.data.approved.date}}</strong>
+            </md-card-content>
+        </md-card>
     </div>
 
     <!-- Recommended Stamp -->
     <div ng-if="application.data.recommended != undefined " >
-        <hr class="p-t-10">
-        Recommended by : <strong>{{ application.data.recommended.staff }} </strong> 
-        , on  <strong>{{application.data.recommended.date.split(' ')[0]}}</strong>
+        <md-card>
+            <md-card-content>
+                Recommended by : <strong>{{ application.data.recommended.staff }} </strong> 
+                , on  <strong>{{application.data.recommended.date}}</strong>
+            </md-card-content>
+        </md-card>
     </div>
 
     <!-- Acknowledged Stamp -->
     <div ng-if="application.data.acknowledged != undefined " >
-            <hr class="p-t-10">
-            Approved by : <strong>{{ application.data.acknowledged.staff }} </strong>
-            , on  <strong>{{application.data.acknowledged.date.split(' ')[0]}}</strong>
-            <br>
-            Expiration : <strong>{{application.expiration | date}}</strong>
-            
-            <md-divider class="m-t-20 m-b-20"></md-divider>
-            <div class="md-title">Digital Permit</div>
-            <div id="wsup_rff_qr" ng-init="generate_qr('wsup_rff_qr', qr_address + '#!?type=wsup_rff&id=' + application.id)"></div>
-            <md-button class="md-raised m-t-20" ng-click="save_qr('wsup_rff_qr','WSUP_RFF-'+application.id+'-'+application.data.acknowledged.date.split(' ')[0])">
-                Save QR
-            </md-button>
-        </div>
+        <md-card>
+            <md-card-content>
+                Approved by : <strong>{{ application.data.acknowledged.staff }} </strong>
+                , on  <strong>{{application.data.acknowledged.date}}</strong>
+                <br>
+                Expiration : <strong>{{application.expiration | date}}</strong>
+            </md-card-content>
+        </md-card>
     <md-divider class="m-t-20 m-b-20"></md-divider>
+
 
 </div>
