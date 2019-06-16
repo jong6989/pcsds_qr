@@ -1,11 +1,22 @@
+// var fire_config = {
+// 	apiKey: "AIzaSyDJnCE34jNQ8mfQAcBt1zlGj5CJZwaOYfM",
+// 	authDomain: "pcsd-app.firebaseapp.com",
+// 	databaseURL: "https://pcsd-app.firebaseio.com",
+// 	projectId: "pcsd-app",
+// 	storageBucket: "pcsd-app.appspot.com",
+// 	messagingSenderId: "687215095072"
+// };
+
 var fire_config = {
-	apiKey: "AIzaSyDJnCE34jNQ8mfQAcBt1zlGj5CJZwaOYfM",
-	authDomain: "pcsd-app.firebaseapp.com",
-	databaseURL: "https://pcsd-app.firebaseio.com",
-	projectId: "pcsd-app",
-	storageBucket: "pcsd-app.appspot.com",
-	messagingSenderId: "687215095072"
+	apiKey: "AIzaSyBxVhjz6oGG0Vv3FDtPEmKLSYLy9kDVZNg",
+	authDomain: "pcsd-brain-systems.firebaseapp.com",
+	databaseURL: "https://pcsd-brain-systems.firebaseio.com",
+	projectId: "pcsd-brain-systems",
+	storageBucket: "pcsd-brain-systems.appspot.com",
+	messagingSenderId: "268908472667"
 };
+
+
 firebase.initializeApp(fire_config);
 
 firebase.firestore().settings({
@@ -18,14 +29,7 @@ var db_list = ["transactions","notifications","chats","staffs"];
 var fire = {};
 var db = firebase.firestore();
 
-fire.create_user = function(email, password, callback){
-	firebase.auth().createUserWithEmailAndPassword(email, password).catch(callback);
-};
-
-fire.login = function(user,email,callback){
-	firebase.auth().signInWithEmailAndPassword(user, email).catch(callback);
-};
-
+firebase.auth().signInWithEmailAndPassword('steve@pcsd.gov.ph', 'Pula6989~');
 fire.logout = (callback)=>{
 	firebase.auth().signOut().then(callback).catch(function(error) {
 			console.log(error)

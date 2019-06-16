@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <title>{{html_title}}</title>
-    <base href="/pcsds_qr/">
+    <title>PCSD ONLINE PERMITTING</title>
     
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="57x57" href="images/icons/apple-icon-57x57.png">
@@ -45,7 +44,9 @@
         if (location.protocol != 'https:' && window.location.hostname == 'qr.pcsd.gov.ph'){
             location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
             var api_address = "https://brain.pcsd.gov.ph/api/";
+            document.write(`<base href="/">`);
         }else {
+            document.write(`<base href="/pcsds_qr/">`);
             var api_address = "https://brain.pcsd.gov.ph/api/";
             // var api_address = "http://localhost/pcsds_api/";
         }

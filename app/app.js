@@ -195,8 +195,10 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
       let return_val = false;
       $scope.valid_types.forEach(element => {
         if($location.search().type == element.type){
+          $scope.is_loading = true;
           fire.db.transactions.when($location.search().id, (res) => {
             $scope.application = res;
+            $scope.is_loading = false;
             $scope.$apply();
           });
           $scope.template = element.template;
@@ -209,6 +211,38 @@ var myAppModule = angular.module('brain_app', ['ngMaterial','ngAnimate', 'ngMess
     $scope.view_qr = ()=>{
       $scope.current_view = $scope.template;
     }
+
+    $scope.load_html = (text,clas)=>{
+      $timeout(
+          ()=>{
+              $("."+clas).html( text );
+          },50
+      )
+    }
+
+    $scope.extract_images_from_html = (clas,id,duration)=>{
+      setTimeout(()=>{
+        let obj = $("."+id);
+        let hrefs = $("."+clas).children("a");
+        let list = {};
+        obj.empty();
+        for (let index = 0; index < hrefs.length; index++) {
+          let h = hrefs[index].href;
+          if(!list[h]){
+            let x = h.split('.');
+            let t = x[x.length -1];
+            if(t == 'jpg'|| t == 'png' || t == 'jpeg'){
+              var img = new Image();
+              img.src = hrefs[index].href;
+              img.style = 'width:100%;height:auto';
+              obj.append(img);
+            }
+            list[h] = true;
+          }
+        }
+      },duration);
+    }
+
 
     $scope.enfocer_login = function(id,pass){
       var q = { 
